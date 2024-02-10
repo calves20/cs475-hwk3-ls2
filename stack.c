@@ -1,68 +1,60 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h> // Include for strdup and free
 #include "stack.h"
-
-/**
- * Creates and returns a pointer to a new stack
- * @return pointer to a stack_t
- */
-stack_t *initstack() {
-  stack_t *newStack = (stack_t*) malloc(sizeof(stack_t));
-  newStack->top = NULL;
-  newStack->size = 0;
-  return newStack;
+// Authur @Curtis Alves
+// Initializes the stack
+stack_t *initStack() {
+    stack_t *newStack = (stack_t*) malloc(sizeof(stack_t));
+    if (newStack == NULL) {
+        fprintf(stderr, "Failed to allocate memory for stack\n");
+        exit(EXIT_FAILURE);
+    }
+    newStack->top = NULL;
+    newStack->size = 0;
+    return newStack;
 }
 
-/**
- * Pops and frees top element.
- * @param s pointer to a stack_t
- * @return a pointer to the top, or NULL if stack was empty
- */
-void* pop(stack_t* s) {
-  if (s->size > 0) {
-    stacknode_t *top = s->top;
-    void* oldData = top->data;  // save the current top for return
-    s->top = s->top->next;
-    s->size--;
-    free(top);  // free up memory
-    return oldData;
-  }
-  return NULL;
+// Pops the top element from the stack
+char* pop(stack_t* s) {
+    if (s->size > 0) {
+        stacknode_t *topNode = s->top;
+        char* data = topNode->data; // Assuming data is a char*
+        s->top = topNode->next;
+        s->size--;
+        free(topNode); // Free the node itself, but not the data
+        return data;
+    }
+    return NULL;
 }
 
-/**
- * Pushes an element onto the stack
- * @param s pointer to a stack_t
- * @param item pointer to an element to push onto the stack
- */
-void push(stack_t* s, void* item) {
-  stacknode_t *newNode = (stacknode_t*) malloc(sizeof(stacknode_t));
-  newNode->data = item;
-  newNode->next = s->top;
-  s->top = newNode;
-  s->size++;
+// Pushes a new element onto the stack
+void push(stack_t* s, char* item) {
+    stacknode_t *newNode = (stacknode_t*) malloc(sizeof(stacknode_t));
+    if (newNode == NULL) {
+        fprintf(stderr, "Failed to allocate memory for stack node\n");
+        exit(EXIT_FAILURE);
+    }
+    newNode->data = strdup(item); // Duplicate the string to ensure the stack owns its copy
+    newNode->next = s->top;
+    s->top = newNode;
+    s->size++;
 }
 
-/**
- * Frees up the stack
- * @param s pointer to a stack_t
- */
-void freestack(stack_t* s) {
-  while (s->size) {
-    void* ret  = pop(s);
-    free(ret);
-  }
-  free(s);
+// Frees the stack and all its elements
+void freeStack(stack_t* s) {
+    while (s->size > 0) {
+        char* data = pop(s);
+        free(data); // Now we also free the string data
+    }
+    free(s); // Finally, free the stack structure itself
 }
 
-/**
- * Prints out the contents of the stack from top to bottom.
- * @param s pointer to a stack_t
- */
-void printstack(stack_t* s) {
-  stacknode_t *current = s->top;
-  while (current != NULL) {
-    printf("%s\n", (char*) current->data);
-    current = current->next;
-  }
+// Prints the stack contents
+void printStack(stack_t* s) {
+    stacknode_t *current = s->top;
+    while (current != NULL) {
+        printf("%s\n", current->data); // Print each path
+        current = current->next;
+    }
 }
